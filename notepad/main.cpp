@@ -80,16 +80,13 @@ public:
         fnc.type(Fl_Native_File_Chooser::BROWSE_FILE);
         if (fnc.show() == 0) {
             const char* file = fnc.filename();
-            //if (0){ // enable this to remove the limit 〴⋋_⋌〵.
             struct stat st;
             if (stat(file, &st) == 0) {
-                // FIXED: Changed .size to .st_size
                 if (st.st_size > 128LL * 1024 * 1024) {
                     fl_alert("Error: File is larger than 128 MB.");
                     return;
                 }
             }
-           // }
             if (n->textBuffer->loadfile(file) == 0) {
                 n->current_file = file;
                 n->update_title();
