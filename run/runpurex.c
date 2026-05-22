@@ -5,13 +5,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <ctype.h>
 
 #define WIN_W 400
 #define WIN_H 100
 #define MAX_CMDS 10000
+#define MAX_BUF 256
+#define MAX_CMD_LEN 250
 
-char buf[256] = "", *cmds[MAX_CMDS];
+char buf[MAX_BUF] = "", *cmds[MAX_CMDS];
 int len = 0, cmd_count = 0;
+
+void cleanup_cmds() {
+    for (int i = 0; i < cmd_count; i++) {
+        free(cmds[i]);
+    }
+    cmd_count = 0;
+}
 
 void scan_path() {
     char *env = getenv("PATH");
@@ -29,6 +39,17 @@ void scan_path() {
         dir = strtok(NULL, ":");
     }
     free(path);
+}
+
+int is_safe_command(const char *cmd) {
+    /* Reject commands with shell metacharacters that could cause injection */
+    const char *dangerous = "|;&$(`\n\r<>";
+    for (int i = 0; cmd[i]; i++) {
+        for (int j = 0; dangerous[j]; j++) {
+            if (cmd[i] == dangerous[j]) return 0;
+        }
+    }
+    return 1;
 }
 
 void redraw(Display *d, Window w, GC gc) {
@@ -87,7 +108,11 @@ int main() {
             int ctrl = ev.xkey.state & ControlMask;
 
             if (k == XK_Return) {
-                if (len > 0) { char c[300]; snprintf(c, 300, "%s &", buf); system(c); }
+                if (len > 0 && is_safe_command(buf)) { 
+                    char c[MAX_BUF + 10];
+                    snprintf(c, sizeof(c), "%s &", buf);
+                    system(c);
+                }
                 break;
             }
             if (k == XK_Escape) break;
@@ -97,12 +122,13 @@ int main() {
             else if (k == XK_Tab && len > 0) { 
                 for (int i = 0; i < cmd_count; i++) {
                     if (strncmp(buf, cmds[i], len) == 0) {
-                        strncpy(buf, cmds[i], 255);
+                        strncpy(buf, cmds[i], MAX_CMD_LEN);
+                        buf[MAX_CMD_LEN] = '\0';
                         len = strlen(buf);
                         break;
                     }
                 }
-            } else if (n > 0 && !ctrl && len + n < 250) {
+            } else if (n > 0 && !ctrl && len + n < MAX_CMD_LEN) {
                 memcpy(buf + len, kbuf, n);
                 len += n; buf[len] = '\0';
             }
@@ -111,9 +137,15 @@ int main() {
         if (ev.type == SelectionNotify) {
             unsigned char *data = NULL;
             XGetWindowProperty(dpy, win, CLIP, 0, 64, False, AnyPropertyType, &actual_type, &actual_fmt, &nitems, &after, &data);
-            if (data) { strncat(buf, (char*)data, 250 - len); len = strlen(buf); XFree(data); redraw(dpy, win, gc); }
+            if (data) { 
+                strncat(buf, (char*)data, MAX_CMD_LEN - len);
+                len = strlen(buf);
+                XFree(data);
+                redraw(dpy, win, gc);
+            }
         }
     }
+    cleanup_cmds();
     XCloseDisplay(dpy);
     return 0;
 }

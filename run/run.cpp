@@ -2,9 +2,9 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Box.H>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,9 +14,17 @@
 #define WIN_W 400
 #define WIN_H 100
 #define MAX_CMDS 10000
+#define MAX_PATH_LEN 1024
 
 char *cmds[MAX_CMDS];
 int cmd_count = 0;
+
+void cleanup_cmds() {
+    for (int i = 0; i < cmd_count; i++) {
+        free(cmds[i]);
+    }
+    cmd_count = 0;
+}
 
 void scan_path() {
     char *env = getenv("PATH");
@@ -56,11 +64,11 @@ void execute_and_mutate(const char *val) {
     }
     close(0);
 
-    char exec_str[1024];
+    char exec_str[MAX_PATH_LEN];
     if (is_dir(val)) {
-        snprintf(exec_str, sizeof(exec_str), "exec xdg-open \"%s\"", val);
+        snprintf(exec_str, sizeof(exec_str), "exec xdg-open \"%%s\"", val);
     } else {
-        snprintf(exec_str, sizeof(exec_str), "exec %s", val);
+        snprintf(exec_str, sizeof(exec_str), "exec %%s", val);
     }
 
     char *args[] = {(char*)"/bin/sh", (char*)"-c", exec_str, NULL};
@@ -118,7 +126,7 @@ public:
                             if (de->d_name[0] == '.' && b_name[0] != '.') continue;
 
                             if (b_len == 0 || strncmp(b_name, de->d_name, b_len) == 0) {
-                                char completed_path[1024];
+                                char completed_path[MAX_PATH_LEN];
                                 // Construct the clean full path string
                                 if (strcmp(d_name, "/") == 0) {
                                     snprintf(completed_path, sizeof(completed_path), "/%s", de->d_name);
@@ -129,7 +137,7 @@ public:
                                 // If the match is a directory, append a trailing slash for immediate deep navigation
                                 struct stat s;
                                 if (stat(completed_path, &s) == 0 && S_ISDIR(s.st_mode)) {
-                                    strcat(completed_path, "/");
+                                    strncat(completed_path, "/", sizeof(completed_path) - strlen(completed_path) - 1);
                                 }
 
                                 value(completed_path);
@@ -156,21 +164,23 @@ public:
                 return 1; 
             }
 
-            if (ctrl && (key == 'a' || key == 'A')) {
+            if (ctrl && key == 'a') {
                 insert_position(0, strlen(value()));
                 return 1;
             }
         }
         return Fl_Input::handle(event);
     }
-};int main() {
+};
+
+int main() {
     scan_path();
 
     int x = 12; 
     int y = Fl::h() - WIN_H - 45; 
 
     Fl_Window *win = new Fl_Window(x, y, WIN_W, WIN_H, "Run");
-    win->color(fl_rgb_color(0xd4, 0xd0, 0xc8)); 
+    win->color(fl_rgb_color(0xd4, 0xd0, 0xc8));
 
     Fl_Box *label = new Fl_Box(20, 15, 360, 20, "Type the name of a program or directory:");
     label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
@@ -184,5 +194,7 @@ public:
     win->end();
     win->show();
 
-    return Fl::run();
+    int result = Fl::run();
+    cleanup_cmds();
+    return result;
 }
