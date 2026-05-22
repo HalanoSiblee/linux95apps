@@ -1,0 +1,26 @@
+# Compiler settings
+CC      = gcc
+CFLAGS  = -O3 -march=native -ffast-math -flto -fomit-frame-pointer
+LDFLAGS = -lX11 -Wl,-O1 -Wl,--as-needed -Wl,--strip-all -flto
+
+# Project settings
+TARGET  = run
+SRC     = run.c
+
+# Default build
+all: $(TARGET)
+
+$(TARGET): $(SRC)
+	$(CC) $(SRC) -o $(TARGET) $(CFLAGS) $(LDFLAGS)
+	@strip -s $(TARGET)
+	@echo "Build complete: $(TARGET) (Optimized & Stripped)"
+
+# Install to local bin
+install: all
+	install -Dm755 $(TARGET) $(DESTDIR)/usr/local/bin/$(TARGET)
+
+# Clean up
+clean:
+	rm -f $(TARGET)
+
+.PHONY: all install clean
