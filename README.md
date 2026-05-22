@@ -1,7 +1,7 @@
 # linux95apps
 Small and fast components that mimic windows 95 on linux,
 Using fltk (fast light tool kit),
-these programs fit& run with Chicago95 theme environment
+these programs fit& run with [Chicago95](https://github.com/grassmunk/Chicago95) theme environment
 such as xfce, icewm, etc,
 
 ---
