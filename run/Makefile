@@ -3,7 +3,7 @@ CXXFLAGS = -O3 -march=native -flto -fomit-frame-pointer $(shell fltk-config --cx
 LDFLAGS = $(shell fltk-config --ldflags) -Wl,-O1 -Wl,--as-needed -Wl,--strip-all -flto
 
 TARGET  = run
-SRC     = run.cpp
+SRC     = main.cpp
 
 all: $(TARGET)
 

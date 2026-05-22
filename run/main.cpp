@@ -66,9 +66,9 @@ void execute_and_mutate(const char *val) {
 
     char exec_str[MAX_PATH_LEN];
     if (is_dir(val)) {
-        snprintf(exec_str, sizeof(exec_str), "exec xdg-open \"%%s\"", val);
+        snprintf(exec_str, sizeof(exec_str), "exec xdg-open \"%s\"", val);
     } else {
-        snprintf(exec_str, sizeof(exec_str), "exec %%s", val);
+        snprintf(exec_str, sizeof(exec_str), "exec %s", val);
     }
 
     char *args[] = {(char*)"/bin/sh", (char*)"-c", exec_str, NULL};
