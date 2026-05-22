@@ -21,7 +21,7 @@ build >> `make`
 
 quickly launch programs, open directory, and execute system commands
 
-<img src="./.github/77326e14-5cda-4f70-bef8-7cc79e677e9f" width="256">
+<img src="./.github/77326e14-5cda-4f70-bef8-7cc79e677e9f" width="1024">
 
 
 ## hotkeys
@@ -38,5 +38,5 @@ quickly launch programs, open directory, and execute system commands
 
 simple fast text editor but limited to 128 MB of data.
 
-<img src="./.github/cee18c0b-bd16-4fd6-bf0e-90d83a75e79e" width="256">
+<img src="./.github/cee18c0b-bd16-4fd6-bf0e-90d83a75e79e" width="1024">
 
