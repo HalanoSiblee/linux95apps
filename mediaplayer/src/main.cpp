@@ -1,7 +1,7 @@
 #include <FL/Fl.H>
-#include "ui.h"
-#include "player.h"
-#include "mpris.h"
+#include "../include/ui.h"
+#include "../include/player.h"
+#include "../include/mpris.h"
 #include <iostream>
 #include <vector>
 #include <string>

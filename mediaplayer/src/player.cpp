@@ -195,7 +195,8 @@ void Player::closeFile() {
 }
 
 void Player::playbackThread() {
-    AVPacket packet;
+    AVPacket* packet = av_packet_alloc();
+    if (!packet) return;
     
     while (playing && !shouldStop) {
         if (paused) {
@@ -207,32 +208,35 @@ void Player::playbackThread() {
             std::lock_guard<std::mutex> lock(playerMutex);
             if (!formatCtx) break;
             
-            int ret = av_read_frame(formatCtx, &packet);
+            int ret = av_read_frame(formatCtx, packet);
             if (ret < 0) {
+                av_packet_free(&packet);
                 next();
                 break;
             }
             
-            if (packet.stream_index == videoStreamIdx && videoCodecCtx) {
-                avcodec_send_packet(videoCodecCtx, &packet);
+            if (packet->stream_index == videoStreamIdx && videoCodecCtx) {
+                avcodec_send_packet(videoCodecCtx, packet);
                 AVFrame* frame = av_frame_alloc();
                 if (avcodec_receive_frame(videoCodecCtx, frame) == 0) {
                     av_frame_free(&frame);
                 }
-            } else if (packet.stream_index == audioStreamIdx && audioCodecCtx) {
-                avcodec_send_packet(audioCodecCtx, &packet);
+            } else if (packet->stream_index == audioStreamIdx && audioCodecCtx) {
+                avcodec_send_packet(audioCodecCtx, packet);
                 AVFrame* frame = av_frame_alloc();
                 if (avcodec_receive_frame(audioCodecCtx, frame) == 0) {
                     av_frame_free(&frame);
                 }
             }
             
-            av_packet_unref(&packet);
+            av_packet_unref(packet);
         }
         
         updateProgress();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    
+    av_packet_free(&packet);
 }
 
 void Player::updateProgress() {
