@@ -40,3 +40,14 @@ simple fast text editor but limited to 128 MB of data.
 
 <img src="./.github/cee18c0b-bd16-4fd6-bf0e-90d83a75e79e" width="1024">
 
+# Contribute
+
+I'm look for excellent contribute to help me on this project
+if you have any idea or program, written in fltk match the mood here please push code
+
+# TODO
+
+- [x] Notepad
+- [x] Run
+- [ ] Paint
+- [ ] MediaPlayer
