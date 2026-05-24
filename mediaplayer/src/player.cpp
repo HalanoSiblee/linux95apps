@@ -175,12 +175,10 @@ bool Player::openFile(const std::string& filepath) {
 
 void Player::closeFile() {
     if (videoCodecCtx) {
-        avcodec_close(videoCodecCtx);
         avcodec_free_context(&videoCodecCtx);
         videoCodecCtx = nullptr;
     }
     if (audioCodecCtx) {
-        avcodec_close(audioCodecCtx);
         avcodec_free_context(&audioCodecCtx);
         audioCodecCtx = nullptr;
     }
@@ -240,10 +238,11 @@ void Player::playbackThread() {
 }
 
 void Player::updateProgress() {
-    if (formatCtx && formatCtx->pb) {
-        int64_t pos = formatCtx->pb->pos;
+    if (formatCtx) {
         if (formatCtx->duration != AV_NOPTS_VALUE) {
-            currentTime = (pos / (double)formatCtx->pb->seek_back) * duration;
+            currentTime = formatCtx->duration > 0 ? 
+                (formatCtx->pb ? formatCtx->pb->pos / (double)(formatCtx->pb->seek_point) : 0.0) * 
+                (formatCtx->duration / (double)AV_TIME_BASE) : 0.0;
         }
     }
     notifyProgress();
