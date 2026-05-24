@@ -18,7 +18,7 @@ MediaUI::MediaUI(int w, int h, const char* title)
     videoBox->box(FL_FLAT_BOX);
     videoBox->color(FL_BLACK);
     
-    fileInfo = new Fl_Output(10, 445, w - 20, 25, "");
+    fileInfo = new Fl_Output(10, 445, w - 20, 25);
     fileInfo->value("No file loaded");
     
     timeDisplay = new Fl_Output(10, 475, w - 20, 25);
@@ -52,8 +52,6 @@ MediaUI::MediaUI(int w, int h, const char* title)
     playlistInfo->value("Playlist empty. Drag & drop files or use File > Open");
     
     end();
-    
-    this->handle(dragDropHandle);
 }
 
 MediaUI::~MediaUI() = default;
@@ -118,28 +116,6 @@ void MediaUI::updatePlaylistDisplay() {
 
 void MediaUI::updateStatus(const std::string& msg) {
     fileInfo->value(msg.c_str());
-}
-
-int MediaUI::dragDropHandle(int event, Fl_Window* w) {
-    MediaUI* ui = static_cast<MediaUI*>(w);
-    
-    if (event == FL_DND_ENTER || event == FL_DND_DRAG) {
-        return 1;
-    }
-    if (event == FL_DND_RELEASE) {
-        const char* text = Fl::event_text();
-        if (text && ui->player) {
-            std::string filepath(text);
-            if (filepath.find("file://") == 0) {
-                filepath = filepath.substr(7);
-            }
-            ui->handleDragDrop(filepath);
-            ui->player->setCurrentTrack(ui->player->getPlaylist().size() - 1);
-        }
-        return 1;
-    }
-    
-    return Fl_Window::handle(event);
 }
 
 void MediaUI::playCallback(Fl_Widget*, void* data) {

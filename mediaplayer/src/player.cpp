@@ -196,6 +196,8 @@ void Player::playbackThread() {
     AVPacket* packet = av_packet_alloc();
     if (!packet) return;
     
+    int64_t startTime = av_gettime();
+    
     while (playing && !shouldStop) {
         if (paused) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -217,12 +219,18 @@ void Player::playbackThread() {
                 avcodec_send_packet(videoCodecCtx, packet);
                 AVFrame* frame = av_frame_alloc();
                 if (avcodec_receive_frame(videoCodecCtx, frame) == 0) {
+                    if (frame->pts != AV_NOPTS_VALUE) {
+                        currentTime = frame->pts * av_q2d(formatCtx->streams[videoStreamIdx]->time_base);
+                    }
                     av_frame_free(&frame);
                 }
             } else if (packet->stream_index == audioStreamIdx && audioCodecCtx) {
                 avcodec_send_packet(audioCodecCtx, packet);
                 AVFrame* frame = av_frame_alloc();
                 if (avcodec_receive_frame(audioCodecCtx, frame) == 0) {
+                    if (frame->pts != AV_NOPTS_VALUE) {
+                        currentTime = frame->pts * av_q2d(formatCtx->streams[audioStreamIdx]->time_base);
+                    }
                     av_frame_free(&frame);
                 }
             }
@@ -230,22 +238,11 @@ void Player::playbackThread() {
             av_packet_unref(packet);
         }
         
-        updateProgress();
+        notifyProgress();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     
     av_packet_free(&packet);
-}
-
-void Player::updateProgress() {
-    if (formatCtx) {
-        if (formatCtx->duration != AV_NOPTS_VALUE) {
-            currentTime = formatCtx->duration > 0 ? 
-                (formatCtx->pb ? formatCtx->pb->pos / (double)(formatCtx->pb->seek_point) : 0.0) * 
-                (formatCtx->duration / (double)AV_TIME_BASE) : 0.0;
-        }
-    }
-    notifyProgress();
 }
 
 std::string Player::getFileName() const {
