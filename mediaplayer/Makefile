@@ -14,11 +14,26 @@ FFMPEG_LDFLAGS := $(shell pkg-config --libs libavformat libavcodec libavutil lib
 DBUS_CXXFLAGS := $(shell pkg-config --cflags dbus-1)
 DBUS_LDFLAGS := $(shell pkg-config --libs dbus-1)
 
-CXXFLAGS += $(FLTK_CXXFLAGS) $(FFMPEG_CXXFLAGS) $(DBUS_CXXFLAGS)
-LDFLAGS += $(FLTK_LDFLAGS) $(FFMPEG_LDFLAGS) $(DBUS_LDFLAGS)
+# PipeWire
+PIPEWIRE_CXXFLAGS := $(shell pkg-config --cflags libpipewire-0.3 libspa-0.2 2>/dev/null || echo "")
+PIPEWIRE_LDFLAGS := $(shell pkg-config --libs libpipewire-0.3 libspa-0.2 2>/dev/null || echo "")
+
+# PulseAudio fallback
+ifeq ($(PIPEWIRE_LDFLAGS),)
+    PULSEAUDIO_CXXFLAGS := $(shell pkg-config --cflags libpulse-simple)
+    PULSEAUDIO_LDFLAGS := $(shell pkg-config --libs libpulse-simple)
+    AUDIO_BACKEND := pulseaudio
+else
+    PULSEAUDIO_CXXFLAGS :=
+    PULSEAUDIO_LDFLAGS :=
+    AUDIO_BACKEND := pipewire
+endif
+
+CXXFLAGS += $(FLTK_CXXFLAGS) $(FFMPEG_CXXFLAGS) $(DBUS_CXXFLAGS) $(PIPEWIRE_CXXFLAGS) $(PULSEAUDIO_CXXFLAGS)
+LDFLAGS += $(FLTK_LDFLAGS) $(FFMPEG_LDFLAGS) $(DBUS_LDFLAGS) $(PIPEWIRE_LDFLAGS) $(PULSEAUDIO_LDFLAGS)
 
 TARGET := mediaplayer
-SOURCES := src/main.cpp src/player.cpp src/ui.cpp src/mpris.cpp
+SOURCES := src/main.cpp src/player.cpp src/ui.cpp src/mpris.cpp src/audio.cpp
 OBJECTS := $(SOURCES:.cpp=.o)
 
 .PHONY: all clean run
