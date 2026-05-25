@@ -40,6 +40,14 @@ simple fast text editor but limited to 128 MB of data.
 
 <img src="./.github/cee18c0b-bd16-4fd6-bf0e-90d83a75e79e" width="1024">
 
+# Paint
+
+Beta paint made possible with fltk ♡
+
+<img src="./.github/1200c482-900a-4726-a24e-04fe7bdfc52e" width="1024">
+<img src="./.github/daa16cfb-5d2d-49de-8e56-28a60d746670" width="1024">
+<img src="./.github/f09e8247-3e16-499e-a133-20740bfdc2a8" width="1024">
+
 # Contribute
 
 I'm look for excellent contribute to help me on this project
@@ -49,5 +57,5 @@ if you have any idea or program, written in fltk match the mood here please pu
 
 - [x] Notepad
 - [x] Run
-- [ ] Paint
+- [x] Paint
 - [ ] MediaPlayer
