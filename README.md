@@ -43,10 +43,22 @@ simple fast text editor but limited to 128 MB of data.
 # Paint
 
 Beta paint made possible with fltk ♡
+|||
+|---|---|
+|<img src="./.github/1200c482-900a-4726-a24e-04fe7bdfc52e" width="1024">|<img src="./.github/daa16cfb-5d2d-49de-8e56-28a60d746670" width="1024">|
+|<img src="./.github/f09e8247-3e16-499e-a133-20740bfdc2a8" width="1024">|<img src="./.github/88e51487-63db-4580-bf57-ba18e04c7557" width="1024">|
 
-<img src="./.github/1200c482-900a-4726-a24e-04fe7bdfc52e" width="1024">
-<img src="./.github/daa16cfb-5d2d-49de-8e56-28a60d746670" width="1024">
-<img src="./.github/f09e8247-3e16-499e-a133-20740bfdc2a8" width="1024">
+## hotkeys
+
+|key|action|
+|---|------|
+|1-9|colors|
+|P|Pencil|
+|B|Brush|
+|E|Eraser|
+|F|Fill|
+|Ctrl + /o /s /e|Save open Resolution|
+|Backspace|Clear|
 
 # Contribute
 
